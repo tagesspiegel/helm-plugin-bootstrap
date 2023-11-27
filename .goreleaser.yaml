@@ -1,0 +1,57 @@
+project_name: helm-plugin-bootstrap
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - main: ./cmd/bootstrap
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+
+archives:
+  - format: binary
+    # this name template makes the OS and Arch compatible with the results of uname.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_{{ .Arch }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+
+release:
+  draft: false
+  prerelease: auto
+  name_template: "Release {{ .Tag }}"
+  mode: prepend
+  header: |
+    ## Release {{ .Tag }} on {{ .Date }}
+
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ incpatch .Version }}-next"
+
+changelog:
+  use: github
+  sort: asc
+  groups:
+    - title: Features
+      regexp: "^.*feat[(\\w)]*:+.*$"
+      order: 0
+    - title: "Bug fixes"
+      regexp: "^.*fix[(\\w)]*:+.*$"
+      order: 1
+    - title: "Enhancements"
+      regexp: "^.*enhancement[(\\w)]*:+.*$"
+      order: 2
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^Merge branch"
+      - "^chore(deps):"
