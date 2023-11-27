@@ -19,3 +19,9 @@
 
 # Go workspace file
 go.work
+
+# ignore the binary directory
+bin/
+
+# ignore the dist directory
+dist/

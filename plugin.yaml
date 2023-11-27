@@ -1,0 +1,9 @@
+name: bootstrap
+usage: "Bootstrap a new Helm chart"
+description: "Bootstrap a new Helm chart"
+command: "$HELM_PLUGIN_DIR/bin/bootstrap"
+ignoreFlags: false
+hooks:
+  install: "$HELM_PLUGIN_DIR/scripts/install.sh"
+  update: "$HELM_PLUGIN_DIR/scripts/install.sh"
+  delete: "rm -rf $HELM_PLUGIN_DIR/"
