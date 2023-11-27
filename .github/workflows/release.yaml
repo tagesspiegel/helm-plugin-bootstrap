@@ -20,7 +20,7 @@ jobs:
           fetch-depth: 0
           clean: true
       - run: git fetch --force --tags
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version: ${{ env.go_version }}
           cache: false

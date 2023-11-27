@@ -57,7 +57,7 @@ jobs:
       COVER_FILE: coverage.out
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-go@v3
+      - uses: actions/setup-go@v4
         with:
           go-version: ${{ env.go_version}}
       - run: go mod tidy
