@@ -29,15 +29,15 @@ os=""
 binExtension=""
 case "$(uname)" in
     Darwin)
-        os="darwin"
+        os="Darwin"
         binExtension=""
         ;;
     Linux)
-        os="linux"
+        os="Linux"
         binExtension=""
         ;;
     Windows)
-        os="windows"
+        os="Windows"
         binExtension=".exe"
         ;;
     *)
@@ -49,7 +49,7 @@ esac
 echo "Installing Helm boostrap plugin for ${os} ${arch}"
 url="https://github.com/tagesspiegel/helm-plugin-bootstrap/releases/latest/download/helm-plugin-bootstrap_${os}_${arch}${binExtension}"
 echo "Downloading from ${url}"
-binDir="$(dirname "$0")/bin"
+binDir="$(dirname "$0")/../bin"
 echo "Storing binary in: ${binDir}"
 
 mkdir -p "${binDir}"
@@ -59,3 +59,5 @@ if [ -x "$(which curl 2>/dev/null)" ]; then
 else
     wget -q "${url}" -O "${binDir}/bootstrap${binExtension}"
 fi
+
+chmod a+x "${binDir}/bootstrap${binExtension}"
