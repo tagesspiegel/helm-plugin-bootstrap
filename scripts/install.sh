@@ -48,12 +48,14 @@ esac
 
 echo "Installing Helm boostrap plugin for ${os} ${arch}"
 url="https://github.com/tagesspiegel/helm-plugin-bootstrap/releases/latest/download/helm-plugin-bootstrap_${os}_${arch}${binExtension}"
+echo "Downloading from ${url}"
+binDir="$(dirname "$0")/bin"
+echo "Storing binary in: ${binDir}"
 
-mkdir -p "bin"
-
+mkdir -p "${binDir}"
 # Download with curl if possible.
 if [ -x "$(which curl 2>/dev/null)" ]; then
-    curl -sSL "${url}" -o "bin/bootstrap${binExtension}"
+    curl -sSL "${url}" -o "${binDir}/bootstrap${binExtension}"
 else
-    wget -q "${url}" -O "bin/bootstrap${binExtension}"
+    wget -q "${url}" -O "${binDir}/bootstrap${binExtension}"
 fi
