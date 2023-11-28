@@ -136,10 +136,12 @@ func Bootstrap(chartLocation string, force bool) error {
 		}
 		// write values.yaml if there is content
 		if len(file.values) > 0 && (!bytes.Contains(valuesData, []byte(file.propertyKey)) || force) {
-			if err := os.WriteFile(filepath.Join(filepath.Join(chartLocation, chartutil.ValuesfileName)), append(valuesData, []byte(file.values)...), 0644); err != nil {
-				return err
-			}
+			valuesData = append(valuesData, []byte(file.values)...)
 		}
+	}
+	// write values.yaml
+	if err := os.WriteFile(filepath.Join(filepath.Join(chartLocation, chartutil.ValuesfileName)), valuesData, 0644); err != nil {
+		return err
 	}
 	return nil
 }
