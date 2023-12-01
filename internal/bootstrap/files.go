@@ -5,7 +5,11 @@ const (
 	PodDisruptionBudgetFileName = "pdb.yaml"
 	// NetworkPolicyFileName is the name of the file that will be created in the templates folder
 	NetworkPolicyFileName = "networkpolicy.yaml"
+	// ServiceMonitorFileName is the name of the file that will be created in the templates folder
+	ServiceMonitorFileName = "servicemonitor.yaml"
 )
+
+// manifest templates
 
 const pdbTemplate = `{{- if .Values.pdb.enabled }}
 apiVersion: policy/v1
@@ -30,8 +34,7 @@ spec:
 	{{- include "%[1]s.selectorLabels" . | nindent 6 }}
 {{- end }}
 `
-
-const networkPolicy = `{{- if .Values.networkPolicy.enabled }}
+const networkPolicyTemplate = `{{- if .Values.networkPolicy.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -59,16 +62,43 @@ spec:
   {{- end -}}
 {{- end }}
 `
+const serviceMonitorTemplate = `{{- if and .Values.metrics.enabled .Values.metrics.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "%[1]s.fullname" . }}
+  {{- if .Values.metrics.serviceMonitor.namespace }}
+  namespace: {{ .Values.metrics.serviceMonitor.namespace }}
+  {{- end }}
+  labels:
+    {{- include "%[1]s.labels" . | nindent 4 }}
+spec:
+  endpoints:
+    - port: {{ .Values.service.port }}
+      path: {{ .Values.metrics.serviceMonitor.metricsPath }}
+      {{- with .Values.metrics.serviceMonitor.interval }}
+      interval: {{ . }}
+      {{- end }}
+      {{- with .Values.metrics.serviceMonitor.scrapeTimeout }}
+      scrapeTimeout: {{ . }}
+      {{- end }}
+  selector:
+    matchLabels:
+      {{- include "%[1]s.selectorLabels" . | nindent 6 }}
+{{- end }}
+`
+
+// values.yaml configurations
 
 const pdbValuesYaml = `
-pdb:
+%[1]s:
   enabled: true
   annotations: {}
   minAvailable: 1
   maxUnavailable: 0
 `
 const networkPolicyValuesYaml = `
-networkPolicy:
+%[1]s:
   enabled: false
   ingress: []
     # - from:
@@ -92,4 +122,14 @@ networkPolicy:
     #   ports:
     #     - protocol: UDP
     #       port: 53
+`
+const serviceMonitorValuesYaml = `
+%[1]s:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    metricsPath: /metrics
+    namespace: ""
+    interval: ""
+    scrapeTimeout: ""
 `

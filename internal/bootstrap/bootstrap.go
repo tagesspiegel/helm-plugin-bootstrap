@@ -108,21 +108,28 @@ func Bootstrap(chartLocation string, force bool) error {
 		path        string
 		content     []byte
 		propertyKey string
-		values      []byte
+		values      string
 	}{
 		{
 			// pdb.yaml
 			path:        filepath.Join(templateFolderLocation, PodDisruptionBudgetFileName),
 			content:     []byte(fmt.Sprintf(pdbTemplate, metadata.Name)),
 			propertyKey: "pdb",
-			values:      []byte(pdbValuesYaml),
+			values:      pdbValuesYaml,
 		},
 		{
 			// networkpolicy.yaml
 			path:        filepath.Join(templateFolderLocation, NetworkPolicyFileName),
-			content:     []byte(fmt.Sprintf(networkPolicy, metadata.Name)),
+			content:     []byte(fmt.Sprintf(networkPolicyTemplate, metadata.Name)),
 			propertyKey: "networkPolicy",
-			values:      []byte(networkPolicyValuesYaml),
+			values:      networkPolicyValuesYaml,
+		},
+		{
+			// servicemonitor.yaml
+			path:        filepath.Join(templateFolderLocation, ServiceMonitorFileName),
+			content:     []byte(fmt.Sprintf(serviceMonitorTemplate, metadata.Name)),
+			propertyKey: "metrics",
+			values:      serviceMonitorValuesYaml,
 		},
 	}
 	// write files
@@ -136,7 +143,7 @@ func Bootstrap(chartLocation string, force bool) error {
 		}
 		// write values.yaml if there is content
 		if len(file.values) > 0 && (!bytes.Contains(valuesData, []byte(file.propertyKey)) || force) {
-			valuesData = append(valuesData, []byte(file.values)...)
+			valuesData = append(valuesData, []byte(fmt.Sprintf(file.values, file.propertyKey))...)
 		}
 	}
 	// write values.yaml
