@@ -19,7 +19,7 @@ jobs:
           submodules: true
           ref: ${{ github.ref }}
 
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.go_version }}
 
@@ -37,7 +37,7 @@ jobs:
           submodules: true
           ref: ${{ github.ref }}
 
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.go_version }}
 
@@ -57,7 +57,7 @@ jobs:
       COVER_FILE: coverage.out
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.go_version}}
       - run: go mod tidy
