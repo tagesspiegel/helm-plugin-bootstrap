@@ -40,7 +40,7 @@ func init() {
 		}
 	}
 	// add version info
-	rootCmd.Version = fmt.Sprintf("%s - %v [ %s/%s ] [ %v ]", revision, buildTime, arch, goos, dirtyBuild)
+	rootCmd.Version = fmt.Sprintf("%s %s - %v [ %s/%s ] [ %v ]", buildInfo.Main.Version, revision, buildTime, arch, goos, dirtyBuild)
 }
 
 func main() {
