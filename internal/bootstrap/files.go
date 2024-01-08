@@ -62,24 +62,24 @@ spec:
   {{- end -}}
 {{- end }}
 `
-const serviceMonitorTemplate = `{{- if and .Values.metrics.enabled .Values.metrics.serviceMonitor.enabled }}
+const serviceMonitorTemplate = `{{- if and .Values.%[1]s.enabled .Values.%[1]s.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ template "%[1]s.fullname" . }}
-  {{- if .Values.metrics.serviceMonitor.namespace }}
-  namespace: {{ .Values.metrics.serviceMonitor.namespace }}
+  {{- if .Values.%[1]s.serviceMonitor.namespace }}
+  namespace: {{ .Values.%[1]s.serviceMonitor.namespace }}
   {{- end }}
   labels:
     {{- include "%[1]s.labels" . | nindent 4 }}
 spec:
   endpoints:
     - port: {{ .Values.service.port }}
-      path: {{ .Values.metrics.serviceMonitor.metricsPath }}
-      {{- with .Values.metrics.serviceMonitor.interval }}
+      path: {{ .Values.%[1]s.serviceMonitor.metricsPath }}
+      {{- with .Values.%[1]s.serviceMonitor.interval }}
       interval: {{ . }}
       {{- end }}
-      {{- with .Values.metrics.serviceMonitor.scrapeTimeout }}
+      {{- with .Values.%[1]s.serviceMonitor.scrapeTimeout }}
       scrapeTimeout: {{ . }}
       {{- end }}
   selector:
