@@ -11,30 +11,30 @@ const (
 
 // manifest templates
 
-const pdbTemplate = `{{- if .Values.pdb.enabled }}
+const pdbTemplate = `{{- if .Values.%[2]s.enabled }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "%[1]s.fullname" . }}
   labels:
     {{- include "%[1]s.labels" . | nindent 4 }}
-  {{- with .Values.pdb.annotations }}
+  {{- with .Values.%[2]s.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.pdb.maxUnavailable }}
+  {{- with .Values.%[2]s.maxUnavailable }}
   maxUnavailable: {{ . }}
   {{- end }}
-  {{- with .Values.pdb.minAvailable }}
+  {{- with .Values.%[2]s.minAvailable }}
   minAvailable: {{ . }}
   {{- end }}
   selector:
     matchLabels:
-	{{- include "%[1]s.selectorLabels" . | nindent 6 }}
+	    {{- include "%[1]s.selectorLabels" . | nindent 6 }}
 {{- end }}
 `
-const networkPolicyTemplate = `{{- if .Values.networkPolicy.enabled }}
+const networkPolicyTemplate = `{{- if .Values.%[2]s.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -46,17 +46,17 @@ spec:
     matchLabels:
       {{- include "%[1]s.selectorLabels" . | nindent 6 }}
   policyTypes:
-  {{- if .Values.networkPolicy.ingress }}
+  {{- if .Values.%[2]s.ingress }}
     - Ingress
   {{- end }}
-  {{- if .Values.networkPolicy.egress }}
+  {{- if .Values.%[2]s.egress }}
     - Egress
   {{- end }}
-  {{- with .Values.networkPolicy.ingress }}
+  {{- with .Values.%[2]s.ingress }}
   ingress:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.networkPolicy.egress }}
+  {{- with .Values.%[2]s.egress }}
   egress:
     {{- toYaml . | nindent 4 }}
   {{- end -}}
@@ -67,19 +67,19 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: {{ template "%[1]s.fullname" . }}
-  {{- if .Values.%[1]s.serviceMonitor.namespace }}
-  namespace: {{ .Values.%[1]s.serviceMonitor.namespace }}
+  {{- if .Values.%[2]s.serviceMonitor.namespace }}
+  namespace: {{ .Values.%[2]s.serviceMonitor.namespace }}
   {{- end }}
   labels:
     {{- include "%[1]s.labels" . | nindent 4 }}
 spec:
   endpoints:
     - port: {{ .Values.service.port }}
-      path: {{ .Values.%[1]s.serviceMonitor.metricsPath }}
-      {{- with .Values.%[1]s.serviceMonitor.interval }}
+      path: {{ .Values.%[2]s.serviceMonitor.metricsPath }}
+      {{- with .Values.%[2]s.serviceMonitor.interval }}
       interval: {{ . }}
       {{- end }}
-      {{- with .Values.%[1]s.serviceMonitor.scrapeTimeout }}
+      {{- with .Values.%[2]s.serviceMonitor.scrapeTimeout }}
       scrapeTimeout: {{ . }}
       {{- end }}
   selector:
