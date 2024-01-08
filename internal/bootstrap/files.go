@@ -5,33 +5,36 @@ const (
 	PodDisruptionBudgetFileName = "pdb.yaml"
 	// NetworkPolicyFileName is the name of the file that will be created in the templates folder
 	NetworkPolicyFileName = "networkpolicy.yaml"
+	// ServiceMonitorFileName is the name of the file that will be created in the templates folder
+	ServiceMonitorFileName = "servicemonitor.yaml"
 )
 
-const pdbTemplate = `{{- if .Values.pdb.enabled }}
+// manifest templates
+
+const pdbTemplate = `{{- if .Values.%[2]s.enabled }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "%[1]s.fullname" . }}
   labels:
     {{- include "%[1]s.labels" . | nindent 4 }}
-  {{- with .Values.pdb.annotations }}
+  {{- with .Values.%[2]s.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- with .Values.pdb.maxUnavailable }}
+  {{- with .Values.%[2]s.maxUnavailable }}
   maxUnavailable: {{ . }}
   {{- end }}
-  {{- with .Values.pdb.minAvailable }}
+  {{- with .Values.%[2]s.minAvailable }}
   minAvailable: {{ . }}
   {{- end }}
   selector:
     matchLabels:
-	{{- include "%[1]s.selectorLabels" . | nindent 6 }}
+	    {{- include "%[1]s.selectorLabels" . | nindent 6 }}
 {{- end }}
 `
-
-const networkPolicy = `{{- if .Values.networkPolicy.enabled }}
+const networkPolicyTemplate = `{{- if .Values.%[2]s.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -43,32 +46,59 @@ spec:
     matchLabels:
       {{- include "%[1]s.selectorLabels" . | nindent 6 }}
   policyTypes:
-  {{- if .Values.networkPolicy.ingress }}
+  {{- if .Values.%[2]s.ingress }}
     - Ingress
   {{- end }}
-  {{- if .Values.networkPolicy.egress }}
+  {{- if .Values.%[2]s.egress }}
     - Egress
   {{- end }}
-  {{- with .Values.networkPolicy.ingress }}
+  {{- with .Values.%[2]s.ingress }}
   ingress:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-  {{- with .Values.networkPolicy.egress }}
+  {{- with .Values.%[2]s.egress }}
   egress:
     {{- toYaml . | nindent 4 }}
   {{- end -}}
 {{- end }}
 `
+const serviceMonitorTemplate = `{{- if and .Values.%[1]s.enabled .Values.%[1]s.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "%[1]s.fullname" . }}
+  {{- if .Values.%[2]s.serviceMonitor.namespace }}
+  namespace: {{ .Values.%[2]s.serviceMonitor.namespace }}
+  {{- end }}
+  labels:
+    {{- include "%[1]s.labels" . | nindent 4 }}
+spec:
+  endpoints:
+    - port: {{ .Values.service.port }}
+      path: {{ .Values.%[2]s.serviceMonitor.metricsPath }}
+      {{- with .Values.%[2]s.serviceMonitor.interval }}
+      interval: {{ . }}
+      {{- end }}
+      {{- with .Values.%[2]s.serviceMonitor.scrapeTimeout }}
+      scrapeTimeout: {{ . }}
+      {{- end }}
+  selector:
+    matchLabels:
+      {{- include "%[1]s.selectorLabels" . | nindent 6 }}
+{{- end }}
+`
+
+// values.yaml configurations
 
 const pdbValuesYaml = `
-pdb:
+%[1]s:
   enabled: true
   annotations: {}
   minAvailable: 1
   maxUnavailable: 0
 `
 const networkPolicyValuesYaml = `
-networkPolicy:
+%[1]s:
   enabled: false
   ingress: []
     # - from:
@@ -92,4 +122,14 @@ networkPolicy:
     #   ports:
     #     - protocol: UDP
     #       port: 53
+`
+const serviceMonitorValuesYaml = `
+%[1]s:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    metricsPath: /metrics
+    namespace: ""
+    interval: ""
+    scrapeTimeout: ""
 `
