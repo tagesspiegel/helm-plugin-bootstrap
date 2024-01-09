@@ -106,23 +106,30 @@ func Bootstrap(chartLocation string, force bool) error {
 
 	files := []struct {
 		path        string
-		content     []byte
+		content     string
 		propertyKey string
-		values      []byte
+		values      string
 	}{
 		{
 			// pdb.yaml
 			path:        filepath.Join(templateFolderLocation, PodDisruptionBudgetFileName),
-			content:     []byte(fmt.Sprintf(pdbTemplate, metadata.Name)),
+			content:     pdbTemplate,
 			propertyKey: "pdb",
-			values:      []byte(pdbValuesYaml),
+			values:      pdbValuesYaml,
 		},
 		{
 			// networkpolicy.yaml
 			path:        filepath.Join(templateFolderLocation, NetworkPolicyFileName),
-			content:     []byte(fmt.Sprintf(networkPolicy, metadata.Name)),
+			content:     networkPolicyTemplate,
 			propertyKey: "networkPolicy",
-			values:      []byte(networkPolicyValuesYaml),
+			values:      networkPolicyValuesYaml,
+		},
+		{
+			// servicemonitor.yaml
+			path:        filepath.Join(templateFolderLocation, ServiceMonitorFileName),
+			content:     serviceMonitorTemplate,
+			propertyKey: "metrics",
+			values:      serviceMonitorValuesYaml,
 		},
 	}
 	// write files
@@ -131,12 +138,12 @@ func Bootstrap(chartLocation string, force bool) error {
 			// There is no handle to a preferred output stream here.
 			fmt.Fprintf(os.Stderr, "WARNING: File %q already exists. Overwriting.\n", file.path)
 		}
-		if err := os.WriteFile(file.path, file.content, 0644); err != nil {
+		if err := os.WriteFile(file.path, []byte(fmt.Sprintf(file.content, metadata.Name, file.propertyKey)), 0644); err != nil {
 			return err
 		}
 		// write values.yaml if there is content
 		if len(file.values) > 0 && (!bytes.Contains(valuesData, []byte(file.propertyKey)) || force) {
-			valuesData = append(valuesData, []byte(file.values)...)
+			valuesData = append(valuesData, []byte(fmt.Sprintf(file.values, file.propertyKey))...)
 		}
 	}
 	// write values.yaml
