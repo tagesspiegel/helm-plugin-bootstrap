@@ -62,7 +62,7 @@ spec:
   {{- end -}}
 {{- end }}
 `
-const serviceMonitorTemplate = `{{- if and .Values.%[1]s.enabled .Values.%[1]s.serviceMonitor.enabled }}
+const serviceMonitorTemplate = `{{- if and .Values.%[2]s.enabled .Values.%[2]s.serviceMonitor.enabled }}
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
