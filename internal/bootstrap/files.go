@@ -31,7 +31,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-	    {{- include "%[1]s.selectorLabels" . | nindent 6 }}
+      {{- include "%[1]s.selectorLabels" . | nindent 6 }}
 {{- end }}
 `
 const networkPolicyTemplate = `{{- if .Values.%[2]s.enabled }}
