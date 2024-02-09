@@ -74,7 +74,7 @@ metadata:
     {{- include "%[1]s.labels" . | nindent 4 }}
 spec:
   endpoints:
-    - port: {{ .Values.service.port }}
+    - port: http
       path: {{ .Values.%[2]s.serviceMonitor.metricsPath }}
       {{- with .Values.%[2]s.serviceMonitor.interval }}
       interval: {{ . }}
