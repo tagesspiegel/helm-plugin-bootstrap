@@ -6,7 +6,7 @@ require (
 	github.com/google/go-cmp v0.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.8.0
-	helm.sh/helm/v3 v3.14.0
+	helm.sh/helm/v3 v3.14.3
 	sigs.k8s.io/yaml v1.4.0
 )
 
